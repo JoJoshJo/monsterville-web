@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+:root {
+  --background: #080808;
+  --foreground: #F5F5F5;
+  --accent: #FF5A1F; /* Soft Orange CTA */
+  --accent-blue: #3A6073; /* Steel Blue Accent */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(17, 17, 17, 0.7);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-blue: var(--accent-blue);
+  --font-syne: var(--font-syne), sans-serif;
+  --font-outfit: var(--font-outfit), sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-premium {
+  background: rgba(8, 8, 8, 0.5);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Film Grain Overlay */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 99999;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Ambient glow animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(1.15);
+  }
+}
+
+.ambient-glow {
+  filter: blur(140px);
+  animation: pulseGlow 12s infinite ease-in-out;
+  pointer-events: none;
+  mix-blend-mode: plus-lighter;
+}
+
+/* Lenis smooth scrolling requirement */
+html.lenis {
+  height: auto;
+}
+
+.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Typography styles */
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-syne);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* Hide default cursor if we want custom cursor */
+@media (pointer: fine) {
+  .custom-cursor-active {
+    cursor: none;
+  }
+  .custom-cursor-active a,
+  .custom-cursor-active button,
+  .custom-cursor-active select,
+  .custom-cursor-active input,
+  .custom-cursor-active [role="button"] {
+    cursor: none;
+  }
+}
+
+/* Soundwave animations */
+.sound-wave-bar {
+  display: inline-block;
+  width: 3px;
+  background: var(--foreground);
+  margin: 0 2px;
+  border-radius: 2px;
+  animation: bounceWave 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes bounceWave {
+  0% { height: 5px; }
+  100% { height: 35px; }
+}
+
+/* Custom horizontal scroll container */
+.horizontal-scroll-container {
+  display: flex;
+  flex-wrap: nowrap;
+  will-change: transform;
+}
+
+/* Text reveal mask */
+.reveal-text-container {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+::-webkit-scrollbar-thumb {
+  background: #222222;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
