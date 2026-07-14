@@ -46,6 +46,14 @@ BookSession … but the badge labels read 01, 02, (Services has no number), **05
 **03** … So the eye sees 05 before 04 before 03. Either reorder the sections or renumber the
 badges to match visual order.
 
+### ✅ DONE — A6. Unlayered CSS reset disabled ALL Tailwind spacing (root cause of "leaning left")
+`globals.css` shipped a raw `* { margin: 0; padding: 0 }` reset. Tailwind v4 emits its
+utilities inside native `@layer` blocks, and **unlayered CSS always wins over layered
+CSS** — so that one rule silently overrode every `mx-auto`, `px-*`, `p-*`, and `m-*`
+on the site. Symptoms: nothing centered, text flush against the viewport edge, cards
+without padding (owner-reported 2026-07-14). *Fixed: reset removed — Tailwind's
+preflight already covers it. This bug existed in the original build.*
+
 ---
 
 ## B. Mobile (owner-confirmed problem area)

@@ -19,11 +19,12 @@
   --font-bodoni: var(--font-bodoni), serif;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/*
+ * NOTE: no `* { margin: 0; padding: 0 }` reset here. Tailwind v4's preflight
+ * already handles it — and because that rule was unlayered, it overrode every
+ * layered Tailwind utility (mx-auto, px-*, p-*), breaking centering and
+ * padding site-wide.
+ */
 
 body {
   background-color: var(--background);
