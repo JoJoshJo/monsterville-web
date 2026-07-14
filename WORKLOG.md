@@ -110,7 +110,24 @@ implemented this session.
 F6 (sound identity), F7 (photo shoot + LUT grade), F8 (CMS campaign canvas) remain
 planned — see IMPROVEMENTS.md.
 
-### 4.5 Accessibility, performance, SEO
+### 4.5 Performance & smoothness (web + mobile)
+- **Image weight — the biggest load win.** Source images were 4000–5000px and 4–8.5MB
+  each. Recompressed all in place (cap 2400px, q80): `public/images` **42MB → 15MB**;
+  full-res originals preserved in `brand-archive/originals-fullres/`. The hero image now
+  serves at **~25KB** (from 4.3MB).
+- **Finished the `next/image` migration** — Shop, Footer, Services, Artists, News, About
+  were still raw `<img>` or CSS background-images serving full originals. All now get
+  **AVIF/WebP** + correctly-sized delivery. `next.config` enables AVIF/WebP + a 1-year cache.
+- **`content-visibility: auto`** on all 9 below-the-fold sections — the browser skips
+  layout + paint for off-screen content on the long single-page scroll (verified: no
+  scroll-height drift).
+- **Hero animation gating** — the two always-on `requestAnimationFrame` loops (flashlight
+  beam + dust) were merged into one and gated by an IntersectionObserver + visibility, so
+  they fully stop when the hero is off-screen or the tab is hidden.
+- **CustomCursor** now bails entirely on touch devices (no listeners, no live spring
+  animation) instead of mounting on every device; passive/debounced listeners throughout.
+
+### 4.6 Accessibility, SEO
 - **Reduced-motion** global guard (C2); JS-gated `cursor:none` so a script failure never
   leaves users cursorless (C3); `aria-label`s on icon buttons + social links (C4); form
   inputs associated to labels (C6).

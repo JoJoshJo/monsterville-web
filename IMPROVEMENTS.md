@@ -137,13 +137,45 @@ count on small screens, and respect `prefers-reduced-motion`.
   sections, so there's no SSR/streaming and the whole site ships as one JS bundle — bad for
   first paint and SEO. Convert static sections (About, Services, News, Footer) to server
   components; keep interactivity in small client leaves.
-- 🔶 PARTIAL — **D2.** `<img>` is used instead of `next/image` throughout (Hero logo, Services, Shop,
-  Artists, cart). No optimization, lazy-loading, or sizing. Migrate to `next/image`.
+- ✅ DONE — **D2.** All images migrated to `next/image` (Hero, Shop, Footer, Services,
+  Artists, News, About). AVIF/WebP + right-sized delivery. Source images recompressed
+  (42MB → 15MB). Hero image 4.3MB → ~25KB served.
 - ✅ DONE — **D3.** `public/images/Fine Arts Cadres /` (LUTs, PSDs, fonts, `.mov`/`.mp4`, contracts)
   is **unused** but ships to production and bloats the deploy. Move it out of `public/`.
-- 🟡 **D4.** Below-the-fold sections aren't code-split/lazy-loaded (`next/dynamic`).
+- ✅ DONE — **D4.** All 9 below-the-fold sections use `content-visibility:auto` — the
+  browser skips layout/paint for off-screen content (verified: no scroll drift). Bigger
+  win than `next/dynamic` here since it also skips paint, not just JS.
 - 🔶 PARTIAL — **D5.** SEO is just `<title>` + description. Add Open Graph/Twitter images, canonical,
   `robots`, `sitemap`, and JSON-LD (Organization/LocalBusiness).
+
+---
+
+## P. Performance & smoothness (2026-07-14 pass — web + mobile)
+
+- ✅ DONE — **P1. Image weight.** Site images were 4000–5000px / 4–8.5MB each. Recompressed
+  in place (cap 2400px, JPG q80): `public/images` 42MB → 15MB; full-res originals kept in
+  `brand-archive/originals-fullres/`. Combined with next/image (P2) the hero image now
+  serves at ~25KB.
+- ✅ DONE — **P2. next/image everywhere + AVIF/WebP.** See D2. `next.config` enables AVIF
+  then WebP with a 1-year cache on derivatives.
+- ✅ DONE — **P3. content-visibility.** All 9 off-screen sections skip layout+paint until
+  near the viewport (`.section-cv`; `contain-intrinsic-size: auto 100vh` so the scrollbar
+  stays stable). Verified: doc height constant at 8120 through a full scroll.
+- ✅ DONE — **P4. Hero animation gating.** Two always-on `requestAnimationFrame` loops
+  (flashlight beam + dust) merged into one, gated by an IntersectionObserver +
+  `visibilitychange` — it fully stops when the hero is scrolled off-screen or the tab is
+  hidden. Previously both ran forever.
+- ✅ DONE — **P5. CustomCursor on desktop only.** Now bails entirely on touch devices (no
+  listeners, no mounted spring animation) instead of mounting everywhere and hiding via
+  CSS. Lighter hover hit-test; passive listeners.
+- ✅ DONE — **P6. Passive/debounced listeners.** `pointermove` and `resize` are passive;
+  hero resize is rAF-debounced.
+- 🟡 **P7.** Services' decorative blurred background still uses a CSS `background-image`
+  (loads a raw original, not the next/image derivative). Low priority — it's one image at
+  15% opacity and the source is now ≤1MB. Convert if squeezing further.
+- 🟡 **P8.** ~7MB of **unused** brand images still ship in `public/images` (e.g.
+  `INSTA LOGO 2023.png` 3MB). They don't affect runtime (never fetched) but bloat the
+  deploy. Safe to delete (backed up in `brand-archive/`) — left in place pending client OK.
 
 ---
 
