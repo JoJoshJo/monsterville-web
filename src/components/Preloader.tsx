@@ -12,23 +12,25 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Increment progress counter
+    // Progress derives from elapsed time, not tick count — background tabs
+    // clamp timers to ~1/s, which would stretch a tick-based counter to
+    // minutes. Time-based, the preloader always finishes in ~2.8s of wall time.
     const duration = 2800; // 2.8s
-    const stepTime = Math.abs(Math.floor(duration / 100));
-    
-    let current = 0;
+    const start = performance.now();
+    let finished = false;
+
     const timer = setInterval(() => {
-      current += 1;
-      if (current >= 100) {
-        current = 100;
+      const pct = Math.min(100, Math.round(((performance.now() - start) / duration) * 100));
+      setProgress(pct);
+      if (pct >= 100 && !finished) {
+        finished = true;
         clearInterval(timer);
         setTimeout(() => {
           setIsLoaded(true);
           setTimeout(onComplete, 800); // Allow fade out to finish
         }, 300);
       }
-      setProgress(current);
-    }, stepTime);
+    }, 40);
 
     return () => clearInterval(timer);
   }, [onComplete]);

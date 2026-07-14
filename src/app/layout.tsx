@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, Outfit, Bodoni_Moda } from "next/font/google";
+import { Syne, Outfit, Bodoni_Moda, Space_Mono } from "next/font/google";
 import "./globals.css";
 
 const syne = Syne({
@@ -12,6 +12,14 @@ const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+// Technical voice — all the "01 / SECTION" micro-labels use font-mono; without a
+// loaded face they fall back to Courier. Space Mono keeps the archival/technical feel.
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 // Editorial accent voice (DESIGN-DIRECTION.md Move 2) — italic serif, used sparingly.
@@ -42,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${outfit.variable} ${bodoni.variable} h-full antialiased`}
+      className={`${syne.variable} ${outfit.variable} ${bodoni.variable} ${spaceMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#080808] text-[#F5F5F5] selection:bg-[#FF5A1F] selection:text-white">
         {/* Grain overlay */}

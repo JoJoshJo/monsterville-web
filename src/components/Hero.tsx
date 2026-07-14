@@ -3,12 +3,8 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { ChevronDown } from "lucide-react";
-
-interface HeroProps {
-  onExploreClick: () => void;
-  onBookClick: () => void;
-}
 
 /**
  * Flashlight hero (DESIGN-DIRECTION.md Move 1).
@@ -22,7 +18,25 @@ interface HeroProps {
 const MASK =
   "radial-gradient(circle 280px at var(--mx, 50%) var(--my, 42%), rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 55%, transparent 100%)";
 
-export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
+export default function Hero() {
+  const lenis = useLenis();
+
+  // Native smooth scrollIntoView fights Lenis's scroll loop — use the Lenis
+  // API when mounted, native as fallback.
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el);
+    else el.scrollIntoView({ behavior: "smooth" });
+  };
+  const onExploreClick = () => scrollTo("about");
+  const onBookClick = () => scrollTo("book");
+
+  // If the tab is hidden at mount (background-tab load, occluded window), rAF is
+  // suspended and JS-driven entrance animations would freeze at their initial
+  // state — leaving the hero blank. Render the final state instantly instead.
+  const instant =
+    typeof document !== "undefined" && document.visibilityState === "hidden";
   const containerRef = useRef<HTMLElement>(null);
   const revealRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -190,14 +204,14 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
       {/* Title block */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
-        className="flex flex-col items-center justify-center my-auto z-10 max-w-5xl"
+        className="flex flex-col items-center justify-center my-auto z-10 max-w-5xl w-full"
       >
         <div className="overflow-hidden mb-4">
           <motion.p
-            initial={{ y: 30, opacity: 0 }}
+            initial={instant ? false : { y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[10px] uppercase tracking-[0.4em] text-[#FF5A1F] font-mono"
+            className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.4em] text-[#FF5A1F] font-mono"
           >
             Cinematic Heritage • Digital Audio Universe
           </motion.p>
@@ -205,20 +219,20 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
 
         <div className="overflow-hidden reveal-text-container leading-[0.9]">
           <motion.h1
-            initial={{ y: 120 }}
+            initial={instant ? false : { y: 120 }}
             animate={{ y: 0 }}
             transition={{ duration: 1.4, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl sm:text-9xl md:text-[10rem] font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5F5F5] to-[#888888] font-display"
+            className="text-[13vw] sm:text-9xl md:text-[10rem] font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5F5F5] to-[#888888] font-display"
           >
             TOWN
           </motion.h1>
         </div>
         <div className="overflow-hidden reveal-text-container leading-[0.9] -mt-1 md:-mt-4">
           <motion.h1
-            initial={{ y: 120 }}
+            initial={instant ? false : { y: 120 }}
             animate={{ y: 0 }}
             transition={{ duration: 1.4, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl sm:text-9xl md:text-[10rem] font-extrabold tracking-tighter text-[#F5F5F5] font-display"
+            className="text-[13vw] sm:text-9xl md:text-[10rem] font-extrabold tracking-tighter text-[#F5F5F5] font-display"
           >
             STUDIOS
           </motion.h1>
@@ -226,7 +240,7 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
 
         {/* Editorial serif tagline (accent voice) */}
         <motion.p
-          initial={{ opacity: 0 }}
+          initial={instant ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 1.3 }}
           className="font-editorial italic text-lg sm:text-2xl text-[#EDEDED]/70 mt-6 sm:mt-8"
@@ -236,7 +250,7 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
 
         {/* Spinning sticker CTA */}
         <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={instant ? false : { opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 1.6 }}
           onClick={onBookClick}
@@ -267,7 +281,7 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
 
       {/* Footer bar */}
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={instant ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 1.8 }}
         className="w-full flex justify-center items-center z-10 text-[10px] uppercase tracking-widest text-[#EDEDED]/30 font-mono pb-24 md:pb-4"

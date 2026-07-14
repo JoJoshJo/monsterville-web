@@ -1,5 +1,6 @@
 "use client";
 
+import { useLenis } from "lenis/react";
 import { Calendar, Briefcase, ShoppingBag, Send } from "lucide-react";
 
 /**
@@ -17,8 +18,15 @@ const ITEMS = [
 ];
 
 export default function CornerNav() {
+  const lenis = useLenis();
+
+  // Native smooth scrollIntoView fights Lenis's scroll loop — go through the
+  // Lenis API when it's mounted, fall back to native otherwise.
   const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el);
+    else el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (

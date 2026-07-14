@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 
@@ -21,18 +21,6 @@ import Footer from "@/components/Footer";
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
-  // Section Refs for smooth scrolling navigation
-  const aboutRef = useRef<HTMLDivElement>(null);
-  const bookRef = useRef<HTMLDivElement>(null);
-
-  const scrollToExplore = () => {
-    aboutRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const scrollToBook = () => {
-    bookRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <>
       {loading ? (
@@ -48,11 +36,11 @@ export default function Home() {
           {/* Immersive Scroll Sections */}
           <main className="w-full flex flex-col relative z-10 selection:bg-[#FF5A1F] selection:text-white">
 
-            {/* 01. Hero — flashlight reveal */}
-            <Hero onExploreClick={scrollToExplore} onBookClick={scrollToBook} />
+            {/* 01. Hero — flashlight reveal (scrolls via ids: #about, #book) */}
+            <Hero />
 
             {/* 01. About */}
-            <div ref={aboutRef} id="about">
+            <div id="about">
               <About />
             </div>
 
@@ -68,7 +56,7 @@ export default function Home() {
             <Artists />
 
             {/* 05. Book Session */}
-            <div ref={bookRef} id="book">
+            <div id="book">
               <BookSession />
             </div>
 

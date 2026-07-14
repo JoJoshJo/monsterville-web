@@ -122,7 +122,7 @@ export default function Services() {
               <span className="font-editorial italic font-normal text-[#FF5A1F]">vision</span>
             </h2>
             <p className="text-base text-[#EDEDED]/60 font-sans max-w-sm mt-4">
-              Hover over our core capabilities to preview the visual aesthetic and details associated with each production suite.
+              Explore our core capabilities — each one previews the visual aesthetic and details of its production suite.
             </p>
           </div>
 

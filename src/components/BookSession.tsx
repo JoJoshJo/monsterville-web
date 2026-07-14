@@ -244,16 +244,16 @@ export default function BookSession() {
                 <div className="glass border-[#FF5A1F]/20 rounded-2xl p-6 md:p-8 flex flex-col gap-6 text-left relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5A1F]/5 rounded-full blur-2xl pointer-events-none" />
                   
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                    <div className="flex flex-col gap-1 min-w-0">
                       <span className="text-xs uppercase tracking-widest text-[#EDEDED]/50 font-mono">Real-Time Quote</span>
-                      <span className="text-2xl font-bold font-display text-white">
+                      <span className="text-xl sm:text-2xl font-bold font-display text-white truncate">
                         {service.label.toUpperCase()}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[10px] font-mono text-white/30 uppercase block">Est. Cost</span>
-                      <span className="text-4xl font-extrabold text-[#FF5A1F] font-display">
+                    <div className="sm:text-right">
+                      <span className="text-[10px] font-mono text-white/40 uppercase block">Est. Cost</span>
+                      <span className="text-3xl sm:text-4xl font-extrabold text-[#FF5A1F] font-display">
                         ${calculateTotal()}
                       </span>
                     </div>

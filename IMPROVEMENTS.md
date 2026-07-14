@@ -91,6 +91,28 @@ size (~44px). Bump sizes and hit areas at the `sm` breakpoint.
 ignores device pixel ratio. **Fix:** pause when tab hidden / offscreen, reduce particle
 count on small screens, and respect `prefers-reduced-motion`.
 
+### Mobile verification pass 2 — 2026-07-14, 375×812 (all fixed same day)
+
+- ✅ DONE — **B7.** Hero "STUDIOS" title overflowed the 375px viewport (dragging the top
+  label off-screen with it). Fixed with a fluid `text-[13vw]` base size + `w-full` guard
+  and tighter label tracking on mobile.
+- ✅ DONE — **B8.** Booking quote panel clipped the price ("$480" ran off the right edge).
+  Header now stacks vertically below `sm`, service name truncates.
+- ✅ DONE — **B9.** Corner-nav/hero CTA scrolling used native smooth `scrollIntoView`,
+  which Lenis fights — taps could do nothing. All scroll actions now go through
+  `useLenis().scrollTo` with a native fallback.
+- ✅ DONE — **B10.** Background-tab robustness: rAF suspension froze the hero's entrance
+  animations at "invisible" and timer clamping stretched the preloader to ~100s. Hero
+  skips entrance animations when mounted hidden; preloader progress is now time-based
+  (always ~2.8s wall time).
+- ✅ DONE — **B11.** Services said "Hover over…" — meaningless on touch (rows are
+  tap-to-activate). Copy reworded; tap-activation verified.
+- ✅ DONE — **T1 (typography).** All `font-mono` micro-labels fell back to default
+  Courier. **Space Mono** is now loaded via `next/font` and routed through Tailwind's
+  `--font-mono` theme token — every label upgrades site-wide. Voice system is now:
+  Syne (display) / Outfit (body) / Bodoni Moda italic (editorial accent) / Space Mono
+  (technical labels).
+
 ---
 
 ## C. Accessibility

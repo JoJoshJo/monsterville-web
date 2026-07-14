@@ -17,6 +17,8 @@
   --font-syne: var(--font-syne), sans-serif;
   --font-outfit: var(--font-outfit), sans-serif;
   --font-bodoni: var(--font-bodoni), serif;
+  /* Route Tailwind's font-mono utility through Space Mono (all micro-labels) */
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
 }
 
 /*
