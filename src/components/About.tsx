@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { EASE } from "@/lib/motion";
 
 export default function About() {
   const containerVariants = {
@@ -20,7 +21,7 @@ export default function About() {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any },
+      transition: { duration: 0.8, ease: EASE },
     },
   };
 
@@ -32,7 +33,7 @@ export default function About() {
   ];
 
   return (
-    <section className="relative w-full min-h-screen py-32 px-6 md:px-12 flex items-center justify-center bg-[#080808]">
+    <section className="relative w-full min-h-dvh py-32 px-6 md:px-12 flex items-center justify-center bg-[#080808]">
       {/* Decorative vertical lines representing a museum exhibition grid */}
       <div className="absolute inset-0 flex justify-between pointer-events-none opacity-5 px-6 md:px-12">
         <div className="w-[1px] h-full bg-[#EDEDED]" />
@@ -59,7 +60,7 @@ export default function About() {
             variants={itemVariants}
             className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display leading-[1.05] text-[#F5F5F5]"
           >
-            WHERE CINEMATIC <span className="text-[#FF5A1F]">VISION</span> MEETS SONIC INERTIA.
+            WHERE CINEMATIC <span className="font-editorial italic font-normal text-[#FF5A1F]">vision</span> MEETS SONIC INERTIA.
           </motion.h2>
 
           <motion.p

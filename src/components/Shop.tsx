@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Plus, Minus, Trash2, X, ChevronRight, Sparkles } from "lucide-react";
+import { EASE } from "@/lib/motion";
 
 interface Product {
   id: string;
@@ -100,7 +101,7 @@ export default function Shop() {
   );
 
   return (
-    <section className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#0c0c0c] flex items-center justify-center">
+    <section className="relative w-full min-h-dvh py-32 px-6 md:px-12 bg-[#0c0c0c] flex items-center justify-center">
       <div className="max-w-7xl w-full mx-auto relative z-10 flex flex-col gap-16">
         
         {/* Header and Cart Trigger */}
@@ -113,7 +114,7 @@ export default function Shop() {
               </span>
             </div>
             <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-display text-[#F5F5F5]">
-              TOWN <span className="text-[#FF5A1F]">BOUTIQUE</span>
+              TOWN <span className="font-editorial italic font-normal text-[#FF5A1F]">boutique</span>
             </h2>
           </div>
 
@@ -124,7 +125,7 @@ export default function Shop() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-full border text-[9px] font-mono tracking-widest uppercase transition-all ${
+                  className={`px-4 py-2.5 rounded-full border text-[10px] font-mono tracking-widest uppercase transition-all ${
                     activeCategory === cat
                       ? "bg-white text-black border-white"
                       : "bg-white/[0.01] border-white/[0.05] text-[#EDEDED]/50 hover:bg-white/[0.03] hover:border-white/10"
@@ -210,7 +211,7 @@ export default function Shop() {
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
-                transition={{ type: "tween", duration: 0.45, ease: [0.16, 1, 0.3, 1] as any }}
+                transition={{ type: "tween", duration: 0.45, ease: EASE }}
                 className="fixed top-0 right-0 h-screen w-full sm:w-[480px] bg-[#0c0c0c] border-l border-white/5 z-[99999] shadow-2xl p-6 md:p-8 flex flex-col justify-between"
               >
                 {/* Header */}
@@ -222,7 +223,8 @@ export default function Shop() {
                   </div>
                   <button
                     onClick={() => setIsCartOpen(false)}
-                    className="w-8 h-8 rounded-full bg-white/[0.03] flex items-center justify-center border border-white/5 hover:bg-white/[0.1] transition-colors"
+                    aria-label="Close cart"
+                    className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center border border-white/5 hover:bg-white/[0.1] transition-colors"
                   >
                     <X className="w-4 h-4 text-white" />
                   </button>
@@ -263,16 +265,18 @@ export default function Shop() {
                           <div className="flex items-center gap-2 mt-2">
                             <button
                               onClick={() => updateQuantity(item.product.id, -1)}
-                              className="w-5 h-5 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 text-white"
+                              aria-label={`Decrease quantity of ${item.product.name}`}
+                              className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 text-white"
                             >
-                              <Minus className="w-2.5 h-2.5" />
+                              <Minus className="w-3 h-3" aria-hidden="true" />
                             </button>
                             <span className="text-xs font-mono font-bold text-white">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.product.id, 1)}
-                              className="w-5 h-5 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 text-white"
+                              aria-label={`Increase quantity of ${item.product.name}`}
+                              className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 text-white"
                             >
-                              <Plus className="w-2.5 h-2.5" />
+                              <Plus className="w-3 h-3" aria-hidden="true" />
                             </button>
                           </div>
                         </div>
@@ -280,6 +284,7 @@ export default function Shop() {
                         {/* Trash */}
                         <button
                           onClick={() => removeFromCart(item.product.id)}
+                          aria-label={`Remove ${item.product.name} from cart`}
                           className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/5 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />

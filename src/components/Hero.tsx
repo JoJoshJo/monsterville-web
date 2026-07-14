@@ -1,105 +1,197 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ChevronDown, Play, Calendar } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface HeroProps {
   onExploreClick: () => void;
   onBookClick: () => void;
 }
 
+/**
+ * Flashlight hero (DESIGN-DIRECTION.md Move 1).
+ * The studio entrance (PORTE.jpg) sits in near-darkness; a radial mask that
+ * follows the pointer reveals it — the visitor carries the light into the
+ * studio. On touch devices (or when idle) the beam drifts slowly on its own.
+ * Dust particles live INSIDE the beam (Move 6: the old full-page particle
+ * background demoted to a cinematic detail).
+ */
+
+const MASK =
+  "radial-gradient(circle 280px at var(--mx, 50%) var(--my, 42%), rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 55%, transparent 100%)";
+
 export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Parallax scroll transformations
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
-
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "150%"]);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.25]);
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.8], [0.65, 0.1]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "120%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  // Handle subtle mouse tilt
+  // Flashlight beam: follow the pointer; drift gently when idle / on touch.
   useEffect(() => {
-    const card = containerRef.current;
-    if (!card) return;
+    const el = containerRef.current;
+    const reveal = revealRef.current;
+    if (!el || !reveal) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { innerWidth, innerHeight } = window;
-      const x = (clientX / innerWidth - 0.5) * 20; // max 20px shift
-      const y = (clientY / innerHeight - 0.5) * 20;
-      
-      const layers = card.querySelectorAll(".parallax-layer");
-      layers.forEach((layer: any) => {
-        const speed = layer.getAttribute("data-speed") || 1;
-        layer.style.transform = `translate3d(${x * speed}px, ${y * speed}px, 0)`;
-      });
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const pointer = { x: 0, y: 0, last: 0 };
+    let raf = 0;
+    let t = Math.random() * 10;
+
+    const setSpot = (x: number, y: number) => {
+      reveal.style.setProperty("--mx", `${x}px`);
+      reveal.style.setProperty("--my", `${y}px`);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    const onPointerMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      pointer.x = e.clientX - r.left;
+      pointer.y = e.clientY - r.top;
+      pointer.last = performance.now();
+    };
+    el.addEventListener("pointermove", onPointerMove);
+
+    const tick = () => {
+      const { width, height } = el.getBoundingClientRect();
+      const idle = performance.now() - pointer.last > 2500;
+      if (idle) {
+        // Slow drift so mobile / hands-off visitors still see the room breathe
+        if (!reduced) t += 0.004;
+        setSpot(
+          width * (0.5 + Math.sin(t) * 0.24),
+          height * (0.42 + Math.cos(t * 0.8) * 0.16)
+        );
+      } else {
+        setSpot(pointer.x, pointer.y);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    if (reduced) {
+      // Static, fully-placed light for reduced motion users
+      const { width, height } = el.getBoundingClientRect();
+      setSpot(width * 0.5, height * 0.42);
+    } else {
+      tick();
+    }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("pointermove", onPointerMove);
+    };
+  }, []);
+
+  // Dust in the light beam — pauses when the tab is hidden.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
+
+    const count = width < 768 ? 22 : 45;
+    const dust = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 1.4 + 0.4,
+      vx: (Math.random() - 0.5) * 0.12,
+      vy: (Math.random() - 0.5) * 0.1 - 0.04, // slight upward drift
+      a: Math.random() * 0.45 + 0.15,
+    }));
+
+    const onResize = () => {
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener("resize", onResize);
+
+    const tick = () => {
+      if (document.hidden) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      ctx.clearRect(0, 0, width, height);
+      for (const p of dust) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+        ctx.globalAlpha = p.a;
+        ctx.fillStyle = "#EDEDED";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden flex flex-col justify-between items-center text-center p-8 bg-[#080808]"
+      className="relative w-full h-dvh overflow-hidden flex flex-col justify-between items-center text-center p-6 sm:p-8 bg-[#080808]"
     >
-      {/* Background Image / Ambient Loop */}
-      <motion.div
-        style={{ scale: bgScale, opacity: bgOpacity }}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-      >
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/images/WALL PAPER.jpg')`,
-            filter: "brightness(0.35) contrast(1.1) saturate(0.85)",
-          }}
+      {/* Layer 1: the room, barely there */}
+      <div className="absolute inset-0 pointer-events-none">
+        <Image
+          src="/images/PORTE.jpg"
+          alt="The entrance of Town Studios at night"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+          style={{ filter: "brightness(0.14) saturate(0.7)" }}
         />
-        {/* Dark vignette overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080808] via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-transparent to-[#080808]" />
-      </motion.div>
-
-      {/* Ambient glowing spotlight */}
-      <div className="absolute top-[20%] left-[20%] w-[45vw] h-[45vw] bg-[#FF5A1F]/5 rounded-full blur-[140px] pointer-events-none" />
-
-      {/* Header bar */}
-      <div className="w-full flex justify-between items-center z-10 max-w-7xl mx-auto pt-4">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex items-center gap-2 cursor-pointer"
-        >
-          <img src="/images/Bobino logo ok.png" alt="Town Logo" className="h-9 w-auto object-contain brightness-200" />
-        </motion.div>
-
-        <motion.button
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          onClick={onBookClick}
-          className="glass hover:bg-[#FF5A1F]/10 hover:border-[#FF5A1F] text-xs uppercase tracking-widest px-5 py-2.5 rounded-full flex items-center gap-2 transition-all duration-300 group"
-        >
-          <Calendar className="w-3.5 h-3.5 text-[#FF5A1F]" />
-          <span>Book Session</span>
-        </motion.button>
       </div>
+
+      {/* Layer 2: the same room inside the flashlight beam, plus dust */}
+      <div
+        ref={revealRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{ WebkitMaskImage: MASK, maskImage: MASK }}
+      >
+        <Image
+          src="/images/PORTE.jpg"
+          alt=""
+          aria-hidden="true"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+          style={{ filter: "brightness(0.72) contrast(1.08) saturate(0.9)" }}
+        />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      </div>
+
+      {/* Vignette to seat the type */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]/60 pointer-events-none" />
 
       {/* Title block */}
       <motion.div
         style={{ y: textY, opacity: textOpacity }}
         className="flex flex-col items-center justify-center my-auto z-10 max-w-5xl"
       >
-        {/* Subtitle / Intro phrase */}
         <div className="overflow-hidden mb-4">
           <motion.p
             initial={{ y: 30, opacity: 0 }}
@@ -107,17 +199,16 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
             transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="text-[10px] uppercase tracking-[0.4em] text-[#FF5A1F] font-mono"
           >
-            A24 Cinematic Heritage • Digital Audio Universe
+            Cinematic Heritage • Digital Audio Universe
           </motion.p>
         </div>
 
-        {/* Title */}
         <div className="overflow-hidden reveal-text-container leading-[0.9]">
           <motion.h1
             initial={{ y: 120 }}
             animate={{ y: 0 }}
             transition={{ duration: 1.4, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="text-7xl sm:text-9xl md:text-[11rem] font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5F5F5] to-[#888888] font-display"
+            className="text-6xl sm:text-9xl md:text-[10rem] font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5F5F5] to-[#888888] font-display"
           >
             TOWN
           </motion.h1>
@@ -127,46 +218,51 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
             initial={{ y: 120 }}
             animate={{ y: 0 }}
             transition={{ duration: 1.4, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="text-7xl sm:text-9xl md:text-[11rem] font-extrabold tracking-tighter text-[#F5F5F5] font-display"
+            className="text-6xl sm:text-9xl md:text-[10rem] font-extrabold tracking-tighter text-[#F5F5F5] font-display"
           >
             STUDIOS
           </motion.h1>
         </div>
 
-        {/* Subtitle grid */}
-        <motion.div
+        {/* Editorial serif tagline (accent voice) */}
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 1.3 }}
-          className="flex gap-4 sm:gap-8 mt-6 sm:mt-10 text-xs sm:text-sm uppercase tracking-widest text-[#EDEDED]/50 font-mono"
+          className="font-editorial italic text-lg sm:text-2xl text-[#EDEDED]/70 mt-6 sm:mt-8"
         >
-          <span>Create.</span>
-          <span>Record.</span>
-          <span>Film.</span>
-          <span>Inspire.</span>
-        </motion.div>
+          Create. Record. Film. <span className="text-[#FF5A1F]">Inspire.</span>
+        </motion.p>
 
-        {/* Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.5 }}
-          className="flex flex-col sm:flex-row gap-4 mt-12 w-full justify-center max-w-[400px]"
+        {/* Spinning sticker CTA */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 1.6 }}
+          onClick={onBookClick}
+          aria-label="Book a session"
+          className="group relative w-28 h-28 sm:w-36 sm:h-36 mt-10 sm:mt-12"
         >
-          <button
-            onClick={onBookClick}
-            className="px-8 py-4 bg-[#FF5A1F] text-white hover:bg-white hover:text-black font-semibold rounded-full uppercase tracking-wider text-xs transition-all duration-300 shadow-[0_0_30px_rgba(255,90,31,0.3)] hover:shadow-white/20 hover:scale-105"
-          >
-            Book Session
-          </button>
-          <button
-            onClick={onExploreClick}
-            className="px-8 py-4 glass hover:bg-white hover:text-black font-semibold rounded-full uppercase tracking-wider text-xs transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Explore Experience</span>
-          </button>
-        </motion.div>
+          <svg viewBox="0 0 100 100" className="w-full h-full sticker-spin" aria-hidden="true">
+            <defs>
+              <path
+                id="sticker-circle"
+                d="M50,50 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"
+              />
+            </defs>
+            <text
+              className="fill-[#F5F5F5] uppercase"
+              style={{ fontSize: "8.2px", letterSpacing: "0.22em", fontFamily: "var(--font-outfit)" }}
+            >
+              <textPath href="#sticker-circle">
+                Book a session — Book a session —
+              </textPath>
+            </text>
+          </svg>
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-[#FF5A1F]/60 bg-[#FF5A1F]/10 group-hover:bg-[#FF5A1F] transition-colors duration-300 flex items-center justify-center">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] group-hover:bg-white transition-colors duration-300" />
+          </span>
+        </motion.button>
       </motion.div>
 
       {/* Footer bar */}
@@ -174,17 +270,15 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 1.8 }}
-        className="w-full flex justify-between items-center z-10 text-[10px] uppercase tracking-widest text-[#EDEDED]/30 max-w-7xl mx-auto font-mono pb-4"
+        className="w-full flex justify-center items-center z-10 text-[10px] uppercase tracking-widest text-[#EDEDED]/30 font-mono pb-24 md:pb-4"
       >
-        <div>SCROLL TO DEVIATE</div>
         <button
           onClick={onExploreClick}
           className="flex items-center gap-2 animate-bounce cursor-pointer hover:text-[#FF5A1F] transition-colors"
         >
           <span>NEXT CHAPTER</span>
-          <ChevronDown className="w-3.5 h-3.5" />
+          <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
         </button>
-        <div>LAT. 43.7001° N</div>
       </motion.div>
     </section>
   );

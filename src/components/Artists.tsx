@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useRef } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 
 interface Artist {
@@ -64,27 +63,8 @@ export default function Artists() {
     }
   };
 
-  // Add scroll listener for mouse wheel horizontal scrolling inside this container
-  useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      // If user scrolls vertically inside this block, scroll it horizontally instead
-      // only if we haven't reached the end
-      const maxScrollLeft = el.scrollWidth - el.clientWidth;
-      if ((e.deltaY > 0 && el.scrollLeft < maxScrollLeft) || (e.deltaY < 0 && el.scrollLeft > 0)) {
-        e.preventDefault();
-        el.scrollLeft += e.deltaY;
-      }
-    };
-
-    el.addEventListener("wheel", handleWheel, { passive: false });
-    return () => el.removeEventListener("wheel", handleWheel);
-  }, []);
-
   return (
-    <section className="relative w-full min-h-screen py-32 bg-[#080808] flex flex-col justify-center overflow-hidden">
+    <section className="relative w-full min-h-dvh py-32 bg-[#080808] flex flex-col justify-center overflow-hidden">
       {/* Title */}
       <div className="max-w-7xl w-full mx-auto px-6 md:px-12 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12">
         <div className="flex flex-col gap-4 text-left">
@@ -95,7 +75,7 @@ export default function Artists() {
             </span>
           </div>
           <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-display text-[#F5F5F5]">
-            TOWN <span className="text-[#FF5A1F]">ARTISTS</span>
+            TOWN <span className="font-editorial italic font-normal text-[#FF5A1F]">artists</span>
           </h2>
         </div>
 
@@ -103,15 +83,17 @@ export default function Artists() {
         <div className="flex gap-4">
           <button
             onClick={scrollLeft}
+            aria-label="Scroll artists left"
             className="w-12 h-12 rounded-full border border-white/10 hover:border-[#FF5A1F] hover:bg-[#FF5A1F]/5 flex items-center justify-center transition-all group"
           >
-            <ArrowLeft className="w-4 h-4 text-[#EDEDED] group-hover:text-[#FF5A1F]" />
+            <ArrowLeft className="w-4 h-4 text-[#EDEDED] group-hover:text-[#FF5A1F]" aria-hidden="true" />
           </button>
           <button
             onClick={scrollRight}
+            aria-label="Scroll artists right"
             className="w-12 h-12 rounded-full border border-white/10 hover:border-[#FF5A1F] hover:bg-[#FF5A1F]/5 flex items-center justify-center transition-all group"
           >
-            <ArrowRight className="w-4 h-4 text-[#EDEDED] group-hover:text-[#FF5A1F]" />
+            <ArrowRight className="w-4 h-4 text-[#EDEDED] group-hover:text-[#FF5A1F]" aria-hidden="true" />
           </button>
         </div>
       </div>

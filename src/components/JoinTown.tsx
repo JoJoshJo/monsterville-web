@@ -22,10 +22,7 @@ export default function JoinTown() {
   const handleNext = () => {
     if (step === 1 && !role) return;
     if (step === 2 && !portfolio) return;
-    if (step === 2) {
-      // Proceed to step 3 (email)
-      setStep(3);
-    }
+    setStep((s) => Math.min(s + 1, 3));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,7 +32,7 @@ export default function JoinTown() {
   };
 
   return (
-    <section className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#0c0c0c] flex items-center justify-center border-t border-white/5">
+    <section className="relative w-full min-h-dvh py-32 px-6 md:px-12 bg-[#0c0c0c] flex items-center justify-center border-t border-white/5">
       <div className="max-w-4xl w-full mx-auto relative z-10 flex flex-col gap-12">
         
         {/* Title */}
@@ -47,7 +44,7 @@ export default function JoinTown() {
             </span>
           </div>
           <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-display text-[#F5F5F5]">
-            JOIN THE <span className="text-[#FF5A1F]">NETWORK</span>
+            JOIN THE <span className="font-editorial italic font-normal text-[#FF5A1F]">network</span>
           </h2>
           <p className="text-sm text-[#EDEDED]/60 font-sans max-w-md">
             We are always scouting for elite creative talent. Pitch your raw links to enter our resident syndicate.
@@ -121,11 +118,12 @@ export default function JoinTown() {
                     animate={{ x: 0, opacity: 1 }}
                     className="flex flex-col gap-6 text-left"
                   >
-                    <label className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+                    <label htmlFor="join-portfolio" className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
                       <LinkIcon className="w-4 h-4 text-[#FF5A1F]" />
                       <span>Provide your portfolio link</span>
                     </label>
                     <input
+                      id="join-portfolio"
                       type="url"
                       required
                       placeholder="https://behance.net/yourprofile or soundcloud.com"
@@ -156,11 +154,12 @@ export default function JoinTown() {
                     onSubmit={handleSubmit}
                     className="flex flex-col gap-6 text-left"
                   >
-                    <label className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+                    <label htmlFor="join-email" className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
                       <User className="w-4 h-4 text-[#FF5A1F]" />
                       <span>Enter your email address</span>
                     </label>
                     <input
+                      id="join-email"
                       type="email"
                       required
                       placeholder="creative@domain.com"
@@ -202,7 +201,7 @@ export default function JoinTown() {
                   Pitch Received
                 </h3>
                 <p className="text-xs text-white/50 leading-relaxed font-sans max-w-sm">
-                  We have logged your application for the **{role}** residency slot. Our visual panel will audit your portfolio at **{portfolio}** and contact you if we select you for an interview.
+                  We have logged your application for the <strong className="text-white">{role}</strong> residency slot. Our visual panel will audit your portfolio at <strong className="text-white">{portfolio}</strong> and contact you if we select you for an interview.
                 </p>
                 <button
                   onClick={() => {

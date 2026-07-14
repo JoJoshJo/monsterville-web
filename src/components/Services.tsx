@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Sliders, Speaker, Camera, Video, Compass, MicVocal, Play } from "lucide-react";
+import { Mic, Sliders, Speaker, Camera, Video, Compass, MicVocal, Play, type LucideIcon } from "lucide-react";
+import { getService } from "@/data/pricing";
 
 interface ServiceItem {
   id: string;
   num: string;
   title: string;
   description: string;
-  icon: any;
+  icon: LucideIcon;
   image: string;
   rates: string;
 }
@@ -25,7 +26,7 @@ export default function Services() {
       description: "Pristine analog signal paths coupled with state-of-the-art acoustics. Designed for artists demanding absolute depth.",
       icon: Mic,
       image: "/images/Bobino Beats.jpg",
-      rates: "From $120/hr",
+      rates: getService("recording").marketing,
     },
     {
       id: "mixing",
@@ -34,7 +35,7 @@ export default function Services() {
       description: "Stereo and spatial audio mixes designed for deep impact. Balancing the organic texture of hardware with surgical digital precision.",
       icon: Sliders,
       image: "/images/MONSTERVILLE INC BLANC NOIR GRIS.jpg",
-      rates: "From $350/track",
+      rates: getService("mixing").marketing,
     },
     {
       id: "mastering",
@@ -43,7 +44,7 @@ export default function Services() {
       description: "The final touch. Precision balancing using high-end tube limiters and solid-state equalizers for a world-class translation.",
       icon: Speaker,
       image: "/images/MONSTERVILLE INC BLEU.jpg",
-      rates: "From $150/track",
+      rates: getService("mastering").marketing,
     },
     {
       id: "photography",
@@ -52,7 +53,7 @@ export default function Services() {
       description: "High-contrast editorial film shoots, fashion print, and cover art styling to immortalize your project's visual voice.",
       icon: Camera,
       image: "/images/TAMPON.jpg",
-      rates: "From $800/session",
+      rates: getService("photography").marketing,
     },
     {
       id: "videography",
@@ -61,7 +62,7 @@ export default function Services() {
       description: "From Netflix title sequences to 16mm film music videos. Volumetric lighting and cinematic color grading that evokes raw A24 feeling.",
       icon: Video,
       image: "/images/PORTE.jpg",
-      rates: "Custom Quote",
+      rates: getService("videography").marketing,
     },
     {
       id: "creative-direction",
@@ -70,7 +71,7 @@ export default function Services() {
       description: "Building the visual and auditive soul of your brand. Cohesive storytelling across merch, art, sound design, and identity.",
       icon: Compass,
       image: "/images/BOOK.jpg",
-      rates: "Custom Quote",
+      rates: getService("creative-direction").marketing,
     },
     {
       id: "podcast-live",
@@ -79,12 +80,12 @@ export default function Services() {
       description: "High-end multi-cam sets with broadcast-ready sound. Immersive livestream setups and intimate acoustic performances.",
       icon: MicVocal,
       image: "/images/WALL PAPER.jpg",
-      rates: "From $200/hr",
+      rates: getService("podcast-live").marketing,
     },
   ];
 
   return (
-    <section className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#0c0c0c] overflow-hidden flex flex-col justify-center">
+    <section className="relative w-full min-h-dvh py-32 px-6 md:px-12 bg-[#0c0c0c] overflow-hidden flex flex-col justify-center">
       {/* Background visual reveal */}
       <div className="absolute inset-0 w-full h-full pointer-events-none opacity-20 transition-all duration-700">
         <AnimatePresence mode="wait">
@@ -118,7 +119,7 @@ export default function Services() {
             </div>
             <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-display text-[#F5F5F5]">
               SOUND & <br />
-              <span className="text-[#FF5A1F]">VISION</span>
+              <span className="font-editorial italic font-normal text-[#FF5A1F]">vision</span>
             </h2>
             <p className="text-base text-[#EDEDED]/60 font-sans max-w-sm mt-4">
               Hover over our core capabilities to preview the visual aesthetic and details associated with each production suite.
@@ -163,6 +164,7 @@ export default function Services() {
               <div
                 key={service.id}
                 onMouseEnter={() => setActiveService(service.id)}
+                onClick={() => setActiveService(service.id)}
                 className="group relative border-b border-white/5 py-6 cursor-pointer flex justify-between items-center transition-all duration-300"
               >
                 {/* Background color slide on hover */}

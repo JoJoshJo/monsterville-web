@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, Clock, Sparkles, CheckCircle2, ChevronRight } from "lucide-react";
-import confetti from "canvas-confetti";
+import { ChevronRight } from "lucide-react";
+import { SERVICE_PRICING, ADDONS, getService } from "@/data/pricing";
+
+const BOOKABLE = SERVICE_PRICING.filter((s) => s.bookable);
 
 export default function BookSession() {
   const [selectedService, setSelectedService] = useState("recording");
@@ -15,45 +17,20 @@ export default function BookSession() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  // Constants
-  const baseRates: Record<string, number> = {
-    recording: 120,
-    mixing: 350,
-    mastering: 150,
-    photography: 200,
-    videography: 250,
-  };
+  const service = getService(selectedService);
+  const isFlat = service.mode === "flat";
 
-  // Pricing formula
+  // Pricing formula — single source of truth in src/data/pricing.ts (A4)
   const calculateTotal = () => {
-    let base = baseRates[selectedService] || 100;
-    
-    // Per hour vs flat rate calculation
-    let subtotal = 0;
-    if (selectedService === "mixing" || selectedService === "mastering") {
-      subtotal = base; // Flat track rate
-    } else {
-      subtotal = base * hours; // Hourly rate
-    }
-
-    if (addAnalogGear) subtotal += 75; // Flat extra
-    if (addVideographer) subtotal += 150 * (selectedService === "mixing" || selectedService === "mastering" ? 1 : hours);
-
+    let subtotal = isFlat ? service.rate : service.rate * hours;
+    if (addAnalogGear) subtotal += ADDONS.analogGear;
+    if (addVideographer) subtotal += ADDONS.videographer * (isFlat ? 1 : hours);
     return subtotal;
   };
 
   const handleBooking = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDate || !name || !email) return;
-
-    // Trigger canvas confetti
-    confetti({
-      particleCount: 150,
-      spread: 80,
-      origin: { y: 0.6 },
-      colors: ["#FF5A1F", "#F5F5F5", "#3A6073"],
-    });
-
     setSubmitted(true);
   };
 
@@ -61,18 +38,18 @@ export default function BookSession() {
   const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
 
   return (
-    <section className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#080808] flex items-center justify-center">
+    <section className="relative w-full min-h-dvh py-32 px-6 md:px-12 bg-[#080808] flex items-center justify-center">
       <div className="max-w-6xl w-full mx-auto relative z-10 flex flex-col gap-16">
         {/* Title */}
         <div className="flex flex-col gap-4 text-center items-center">
           <div className="flex items-center gap-3">
             <span className="w-1.5 h-1.5 bg-[#FF5A1F] rounded-full" />
             <span className="text-[10px] tracking-[0.3em] font-mono text-[#EDEDED]/50 uppercase">
-              03 / WORKSPACE RESERVATION
+              05 / WORKSPACE RESERVATION
             </span>
           </div>
           <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-display text-[#F5F5F5]">
-            SECURE YOUR <span className="text-[#FF5A1F]">SESSION</span>
+            SECURE YOUR <span className="font-editorial italic font-normal text-[#FF5A1F]">session</span>
           </h2>
           <p className="text-sm text-[#EDEDED]/60 font-sans max-w-md">
             Choose your suite, customize your inputs, select an open date, and book instant access.
@@ -95,25 +72,25 @@ export default function BookSession() {
                     1. Select Suite
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {Object.keys(baseRates).map((service) => (
+                    {BOOKABLE.map((s) => (
                       <button
-                        key={service}
+                        key={s.id}
                         type="button"
-                        onClick={() => setSelectedService(service)}
+                        onClick={() => setSelectedService(s.id)}
                         className={`px-4 py-3 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
-                          selectedService === service
+                          selectedService === s.id
                             ? "bg-[#FF5A1F] text-white border-[#FF5A1F]"
                             : "bg-white/[0.02] border-white/[0.05] text-[#EDEDED]/70 hover:bg-white/[0.05] hover:border-white/15"
                         }`}
                       >
-                        {service}
+                        {s.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Step 2: Duration / Hours */}
-                {!(selectedService === "mixing" || selectedService === "mastering") && (
+                {!isFlat && (
                   <div className="flex flex-col gap-3">
                     <label className="text-[10px] font-mono uppercase tracking-widest text-[#EDEDED]/50 flex justify-between">
                       <span>2. Session Duration</span>
@@ -181,10 +158,11 @@ export default function BookSession() {
                 {/* Step 4: Contact details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono uppercase tracking-widest text-[#EDEDED]/50">
+                    <label htmlFor="booking-name" className="text-[10px] font-mono uppercase tracking-widest text-[#EDEDED]/50">
                       Name
                     </label>
                     <input
+                      id="booking-name"
                       type="text"
                       required
                       placeholder="Marc L."
@@ -194,10 +172,11 @@ export default function BookSession() {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono uppercase tracking-widest text-[#EDEDED]/50">
+                    <label htmlFor="booking-email" className="text-[10px] font-mono uppercase tracking-widest text-[#EDEDED]/50">
                       Email
                     </label>
                     <input
+                      id="booking-email"
                       type="email"
                       required
                       placeholder="client@gmail.com"
@@ -269,7 +248,7 @@ export default function BookSession() {
                     <div className="flex flex-col gap-1">
                       <span className="text-xs uppercase tracking-widest text-[#EDEDED]/50 font-mono">Real-Time Quote</span>
                       <span className="text-2xl font-bold font-display text-white">
-                        {selectedService.toUpperCase()}
+                        {service.label.toUpperCase()}
                       </span>
                     </div>
                     <div className="text-right">
@@ -283,9 +262,9 @@ export default function BookSession() {
                   <div className="border-t border-white/5 pt-4 flex flex-col gap-2.5 text-xs text-white/60 font-sans">
                     <div className="flex justify-between">
                       <span>Base rate:</span>
-                      <span className="text-white">${baseRates[selectedService]}</span>
+                      <span className="text-white">${service.rate}</span>
                     </div>
-                    {!(selectedService === "mixing" || selectedService === "mastering") && (
+                    {!isFlat && (
                       <div className="flex justify-between">
                         <span>Hours:</span>
                         <span className="text-white">x {hours}</span>
@@ -294,13 +273,13 @@ export default function BookSession() {
                     {addAnalogGear && (
                       <div className="flex justify-between text-[#FF5A1F]">
                         <span>Analog Outboard:</span>
-                        <span>+$75</span>
+                        <span>+${ADDONS.analogGear}</span>
                       </div>
                     )}
                     {addVideographer && (
                       <div className="flex justify-between text-white/80">
                         <span>Videographer premium:</span>
-                        <span>+${150 * (selectedService === "mixing" || selectedService === "mastering" ? 1 : hours)}</span>
+                        <span>+${ADDONS.videographer * (isFlat ? 1 : hours)}</span>
                       </div>
                     )}
                   </div>
@@ -313,14 +292,15 @@ export default function BookSession() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-md w-full mx-auto glass border-[#FF5A1F]/30 rounded-2xl p-10 flex flex-col items-center justify-center text-center gap-6"
             >
-              <div className="w-16 h-16 rounded-full bg-[#FF5A1F]/15 flex items-center justify-center border border-[#FF5A1F]/40 mb-2">
-                <CheckCircle2 className="w-8 h-8 text-[#FF5A1F]" />
+              <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-red-500/10 border border-red-500/40 mb-2">
+                <span className="rec-dot w-3 h-3 rounded-full bg-red-500" />
+                <span className="font-mono text-xs tracking-[0.3em] text-red-400 uppercase">REC</span>
               </div>
               <h3 className="text-2xl font-bold font-display text-white uppercase tracking-wider">
                 Session Requested!
               </h3>
               <p className="text-sm text-white/60 leading-relaxed font-sans">
-                Merci {name}. We have logged your request for July {selectedDate}, 2026. A representative from Town Studios will reach out to **{email}** within 2 hours to confirm your project spec sheet.
+                Merci {name}. We have logged your request for July {selectedDate}, 2026. A representative from Town Studios will reach out to <strong className="text-white">{email}</strong> within 2 hours to confirm your project spec sheet.
               </p>
               <button
                 onClick={() => {

@@ -41,7 +41,7 @@ export default function News() {
   ];
 
   return (
-    <section className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#080808] flex items-center justify-center border-t border-white/5">
+    <section className="relative w-full min-h-dvh py-32 px-6 md:px-12 bg-[#080808] flex items-center justify-center border-t border-white/5">
       <div className="max-w-7xl w-full mx-auto relative z-10 flex flex-col gap-16">
         
         {/* Title */}
@@ -53,7 +53,7 @@ export default function News() {
             </span>
           </div>
           <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight font-display text-[#F5F5F5]">
-            TOWN <span className="text-[#FF5A1F]">CHRONICLES</span>
+            TOWN <span className="font-editorial italic font-normal text-[#FF5A1F]">chronicles</span>
           </h2>
         </div>
 

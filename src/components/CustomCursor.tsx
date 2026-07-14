@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function CustomCursor() {
@@ -15,6 +15,14 @@ export default function CustomCursor() {
   const springConfig = { damping: 30, stiffness: 250, mass: 0.5 };
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
+
+  // Hide the native cursor only while this component is alive and the device
+  // has a fine pointer — if JS fails, users keep their cursor (C3).
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    document.documentElement.classList.add("custom-cursor-active");
+    return () => document.documentElement.classList.remove("custom-cursor-active");
+  }, []);
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
