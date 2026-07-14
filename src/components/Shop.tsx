@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Plus, Minus, Trash2, X, ChevronRight, Sparkles } from "lucide-react";
 import { EASE } from "@/lib/motion";
@@ -161,10 +162,12 @@ export default function Shop() {
             >
               {/* Product Visual */}
               <div className="w-full aspect-square bg-[#080808] overflow-hidden relative border-b border-white/5">
-                <img
+                <Image
                   src={p.image}
                   alt={p.name}
-                  className="w-full h-full object-cover grayscale brightness-90 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="object-cover grayscale brightness-90 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
                 />
                 
                 {/* Price tag */}
@@ -250,8 +253,8 @@ export default function Shop() {
                         className="p-4 rounded-xl bg-white/[0.01] border border-white/[0.04] flex gap-4 items-center justify-between"
                       >
                         {/* Img */}
-                        <div className="w-16 h-16 rounded overflow-hidden bg-black flex-none border border-white/5">
-                          <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                        <div className="relative w-16 h-16 rounded overflow-hidden bg-black flex-none border border-white/5">
+                          <Image src={item.product.image} alt={item.product.name} fill sizes="64px" className="object-cover" />
                         </div>
 
                         {/* Info */}

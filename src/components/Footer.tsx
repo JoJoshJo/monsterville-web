@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ArrowUpRight, Send } from "lucide-react";
 
 export default function Footer() {
@@ -26,7 +27,7 @@ export default function Footer() {
         <div className="md:col-span-5 flex flex-col justify-between gap-10">
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3 cursor-pointer" onClick={scrollToTop}>
-              <img src="/images/Bobino logo ok.png" alt="Town Logo" className="h-10 w-auto object-contain brightness-200" />
+              <Image src="/images/Bobino logo ok.png" alt="Town Logo" width={120} height={40} className="h-10 w-auto object-contain brightness-200" />
             </div>
             <p className="text-sm text-white/55 leading-relaxed font-sans max-w-sm">
               An architectural space dedicated to cinematic grade visuals and high-fidelity sound layouts. 

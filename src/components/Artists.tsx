@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 
 interface Artist {
@@ -112,10 +113,12 @@ export default function Artists() {
             <div className="glass rounded-2xl overflow-hidden flex flex-col group transition-all duration-500 hover:border-[#FF5A1F]/30">
               {/* Photo Portrait */}
               <div className="relative w-full aspect-[16/10] overflow-hidden bg-zinc-950">
-                {/* 3D Depth tilt effect wrapper */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center grayscale contrast-[1.1] transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
-                  style={{ backgroundImage: `url('${artist.image}')` }}
+                <Image
+                  src={artist.image}
+                  alt={artist.name}
+                  fill
+                  sizes="(max-width: 640px) 85vw, 600px"
+                  className="object-cover grayscale contrast-[1.1] transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
                 />
                 
                 {/* Visual gradient overlay */}

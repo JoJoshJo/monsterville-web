@@ -36,6 +36,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Skip rendering (layout + paint) for sections that are far off-screen on this
+ * long single-page scroll. The `auto` intrinsic size means the browser
+ * remembers each section's real height after its first render, so the
+ * scrollbar stays stable. Big scroll-smoothness win.
+ */
+.section-cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100vh;
+}
+
 /* Glassmorphism utility */
 .glass {
   background: var(--glass-bg);

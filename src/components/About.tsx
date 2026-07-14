@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { EASE } from "@/lib/motion";
 
@@ -101,9 +102,12 @@ export default function About() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="col-span-12 rounded-lg overflow-hidden glass aspect-[4/5] relative group cursor-pointer"
           >
-            <div 
-              className="absolute inset-0 bg-cover bg-center grayscale contrast-125 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
-              style={{ backgroundImage: `url('/images/PORTE.jpg')` }}
+            <Image
+              src="/images/PORTE.jpg"
+              alt="The Sanctuary entryway"
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover grayscale contrast-125 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/90 via-transparent to-transparent" />
@@ -120,9 +124,12 @@ export default function About() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="absolute -bottom-8 -left-8 w-1/2 aspect-[1/1] rounded-lg overflow-hidden glass border border-[#FF5A1F]/30 hidden sm:block group cursor-pointer"
           >
-            <div 
-              className="absolute inset-0 bg-cover bg-center grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
-              style={{ backgroundImage: `url('/images/BOOK.jpg')` }}
+            <Image
+              src="/images/BOOK.jpg"
+              alt="Editorial monograph"
+              fill
+              sizes="(max-width: 1024px) 50vw, 20vw"
+              className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors duration-500" />
           </motion.div>

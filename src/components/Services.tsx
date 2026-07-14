@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Sliders, Speaker, Camera, Video, Compass, MicVocal, Play, type LucideIcon } from "lucide-react";
 import { getService } from "@/data/pricing";
@@ -145,7 +146,7 @@ export default function Services() {
                       <p className="text-sm text-[#EDEDED]/70 leading-relaxed font-sans">{s.description}</p>
                       
                       <div className="w-full h-[150px] mt-4 rounded-lg overflow-hidden relative">
-                        <img src={s.image} alt={s.title} className="w-full h-full object-cover grayscale brightness-90" />
+                        <Image src={s.image} alt={s.title} fill sizes="380px" className="object-cover grayscale brightness-90" />
                       </div>
                     </motion.div>
                   )

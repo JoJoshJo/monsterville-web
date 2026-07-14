@@ -49,21 +49,47 @@ export default function Hero() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "120%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  // Flashlight beam: follow the pointer; drift gently when idle / on touch.
+  // ONE animation loop drives both the flashlight beam and the dust — and it
+  // only runs while the hero is actually on screen and the tab is visible.
+  // (Previously two independent rAF loops ran forever, even scrolled away.)
   useEffect(() => {
     const el = containerRef.current;
     const reveal = revealRef.current;
+    const canvas = canvasRef.current;
     if (!el || !reveal) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ctx = canvas?.getContext("2d") ?? null;
+
     const pointer = { x: 0, y: 0, last: 0 };
     let raf = 0;
+    let running = false;
     let t = Math.random() * 10;
+    let width = el.clientWidth;
+    let height = el.clientHeight;
 
     const setSpot = (x: number, y: number) => {
       reveal.style.setProperty("--mx", `${x}px`);
       reveal.style.setProperty("--my", `${y}px`);
     };
+
+    // Dust particles (only if we have a canvas and motion is allowed)
+    let dust: { x: number; y: number; r: number; vx: number; vy: number; a: number }[] = [];
+    const seedDust = () => {
+      if (!canvas || reduced) return;
+      canvas.width = width;
+      canvas.height = height;
+      const count = width < 768 ? 18 : 40;
+      dust = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 1.4 + 0.4,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: (Math.random() - 0.5) * 0.1 - 0.04,
+        a: Math.random() * 0.45 + 0.15,
+      }));
+    };
+    seedDust();
 
     const onPointerMove = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
@@ -71,93 +97,83 @@ export default function Hero() {
       pointer.y = e.clientY - r.top;
       pointer.last = performance.now();
     };
-    el.addEventListener("pointermove", onPointerMove);
 
     const tick = () => {
-      const { width, height } = el.getBoundingClientRect();
+      // Beam
       const idle = performance.now() - pointer.last > 2500;
       if (idle) {
-        // Slow drift so mobile / hands-off visitors still see the room breathe
         if (!reduced) t += 0.004;
-        setSpot(
-          width * (0.5 + Math.sin(t) * 0.24),
-          height * (0.42 + Math.cos(t * 0.8) * 0.16)
-        );
+        setSpot(width * (0.5 + Math.sin(t) * 0.24), height * (0.42 + Math.cos(t * 0.8) * 0.16));
       } else {
         setSpot(pointer.x, pointer.y);
       }
-      raf = requestAnimationFrame(tick);
-    };
-
-    if (reduced) {
-      // Static, fully-placed light for reduced motion users
-      const { width, height } = el.getBoundingClientRect();
-      setSpot(width * 0.5, height * 0.42);
-    } else {
-      tick();
-    }
-
-    return () => {
-      cancelAnimationFrame(raf);
-      el.removeEventListener("pointermove", onPointerMove);
-    };
-  }, []);
-
-  // Dust in the light beam — pauses when the tab is hidden.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let raf = 0;
-    let width = (canvas.width = canvas.offsetWidth);
-    let height = (canvas.height = canvas.offsetHeight);
-
-    const count = width < 768 ? 22 : 45;
-    const dust = Array.from({ length: count }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      r: Math.random() * 1.4 + 0.4,
-      vx: (Math.random() - 0.5) * 0.12,
-      vy: (Math.random() - 0.5) * 0.1 - 0.04, // slight upward drift
-      a: Math.random() * 0.45 + 0.15,
-    }));
-
-    const onResize = () => {
-      width = canvas.width = canvas.offsetWidth;
-      height = canvas.height = canvas.offsetHeight;
-    };
-    window.addEventListener("resize", onResize);
-
-    const tick = () => {
-      if (document.hidden) {
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-      ctx.clearRect(0, 0, width, height);
-      for (const p of dust) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-        ctx.globalAlpha = p.a;
+      // Dust
+      if (ctx && dust.length) {
+        ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = "#EDEDED";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
+        for (const p of dust) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = width;
+          else if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          else if (p.y > height) p.y = 0;
+          ctx.globalAlpha = p.a;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
       }
-      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(tick);
     };
-    tick();
+
+    const start = () => {
+      if (running || reduced) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    // Place the static light immediately (also the only paint for reduced motion)
+    setSpot(width * 0.5, height * 0.42);
+
+    // Only animate while the hero is visible AND the tab is foregrounded.
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting && !document.hidden ? start() : stop()),
+      { threshold: 0 }
+    );
+    io.observe(el);
+
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else if (el.getBoundingClientRect().bottom > 0 && el.getBoundingClientRect().top < window.innerHeight) start();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    let resizeRaf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        width = el.clientWidth;
+        height = el.clientHeight;
+        seedDust();
+      });
+    };
+
+    el.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      el.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(resizeRaf);
     };
   }, []);
 

@@ -36,45 +36,53 @@ export default function Home() {
           {/* Immersive Scroll Sections */}
           <main className="w-full flex flex-col relative z-10 selection:bg-[#FF5A1F] selection:text-white">
 
-            {/* 01. Hero — flashlight reveal (scrolls via ids: #about, #book) */}
+            {/* 01. Hero — flashlight reveal (LCP: rendered immediately, no content-visibility) */}
             <Hero />
 
             {/* 01. About */}
-            <div id="about">
+            <div id="about" className="section-cv">
               <About />
             </div>
 
             {/* 02. Services */}
-            <Services />
+            <div className="section-cv">
+              <Services />
+            </div>
 
             {/* 03. Portfolio */}
-            <div id="work">
+            <div id="work" className="section-cv">
               <Portfolio />
             </div>
 
             {/* 04. Artists */}
-            <Artists />
+            <div className="section-cv">
+              <Artists />
+            </div>
 
             {/* 05. Book Session */}
-            <div id="book">
+            <div id="book" className="section-cv">
               <BookSession />
             </div>
 
             {/* 06. Shop */}
-            <div id="shop">
+            <div id="shop" className="section-cv">
               <Shop />
             </div>
 
             {/* 07. News */}
-            <News />
+            <div className="section-cv">
+              <News />
+            </div>
 
             {/* 08. Join Town */}
-            <div id="join">
+            <div id="join" className="section-cv">
               <JoinTown />
             </div>
 
             {/* Footer */}
-            <Footer />
+            <div className="section-cv">
+              <Footer />
+            </div>
 
           </main>
         </ReactLenis>

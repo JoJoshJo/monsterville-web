@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 interface Article {
@@ -70,9 +71,12 @@ export default function News() {
             >
               {/* Image Frame */}
               <div className="w-full aspect-[4/3] rounded-xl overflow-hidden glass relative">
-                <div
-                  className="absolute inset-0 bg-cover bg-center grayscale scale-100 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
-                  style={{ backgroundImage: `url('${art.image}')` }}
+                <Image
+                  src={art.image}
+                  alt={art.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="object-cover grayscale scale-100 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
               </div>
