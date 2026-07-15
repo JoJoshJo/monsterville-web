@@ -2,11 +2,30 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ArrowUpRight, Send } from "lucide-react";
+import { useLenis } from "lenis/react";
+import { ArrowUpRight, Send, Phone } from "lucide-react";
+
+// Directory links → the section ids they scroll to (set in page.tsx).
+const DIRECTORY: { label: string; id: string }[] = [
+  { label: "Services", id: "services" },
+  { label: "Artists", id: "artists" },
+  { label: "Portfolio", id: "work" },
+  { label: "Boutique Shop", id: "shop" },
+  { label: "News Press", id: "news" },
+  { label: "Join Syndicate", id: "join" },
+];
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const lenis = useLenis();
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el);
+    else el.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,23 +35,54 @@ export default function Footer() {
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (lenis) lenis.scrollTo(0);
+    else window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <footer className="relative w-full bg-[#080808] border-t border-white/5 py-24 px-6 md:px-12 text-left">
       <div className="max-w-7xl w-full mx-auto relative z-10 grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
         
-        {/* Left Side: Brand, Description, Socials (5 cols) */}
+        {/* Left Side: Brand, Founder, Socials (5 cols) */}
         <div className="md:col-span-5 flex flex-col justify-between gap-10">
           <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={scrollToTop}>
+            <div className="flex items-center gap-3 cursor-pointer w-fit" onClick={scrollToTop}>
               <Image src="/images/Bobino logo ok.png" alt="Town Logo" width={120} height={40} className="h-10 w-auto object-contain brightness-200" />
             </div>
             <p className="text-sm text-white/55 leading-relaxed font-sans max-w-sm">
-              An architectural space dedicated to cinematic grade visuals and high-fidelity sound layouts. 
+              An architectural space dedicated to cinematic grade visuals and high-fidelity sound layouts.
               Pioneering digital soundscapes.
             </p>
+
+            {/* Founder / owner contact */}
+            <div className="flex flex-col gap-3 border-l-2 border-[#FF5A1F]/40 pl-4 mt-2 max-w-sm">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span aria-hidden="true">🎙️</span>
+                <span className="font-display text-lg font-bold text-white tracking-tight">Bobino Beats</span>
+                <span className="text-[9px] font-mono uppercase tracking-widest text-[#FF5A1F] border border-[#FF5A1F]/30 rounded-full px-2 py-0.5">Founder</span>
+              </div>
+              <p className="text-[11px] text-white/45 font-mono uppercase tracking-wider leading-relaxed">
+                Artist • Songwriter • Beatmaker • Record Producer • Creative Director
+              </p>
+              <a
+                href="tel:+22879938819"
+                aria-label="Call Bobino Beats for booking and consulting"
+                className="flex items-center gap-2 text-sm text-white/80 hover:text-[#FF5A1F] transition-colors w-fit"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                <span className="font-mono tracking-wide">+228 79 93 88 19</span>
+              </a>
+              <p className="text-[11px] text-white/40 leading-relaxed">
+                Booking &amp; Consulting · Spiritual Consulting
+              </p>
+              <button
+                onClick={() => scrollTo("book")}
+                className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#FF5A1F] hover:gap-2.5 transition-all w-fit group"
+              >
+                <span>Book on Monsterville.spaces</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* Socials */}
@@ -64,12 +114,15 @@ export default function Footer() {
         <div className="md:col-span-3 flex flex-col gap-6">
           <span className="text-[10px] font-mono tracking-widest text-[#FF5A1F] uppercase">DIRECTORY</span>
           <ul className="flex flex-col gap-4 text-xs font-semibold uppercase tracking-wider text-white/60">
-            {["Services", "Artists", "Portfolio", "Boutique Shop", "News Press", "Join Syndicate"].map((link, i) => (
-              <li key={i}>
-                <span className="hover:text-[#FF5A1F] transition-colors cursor-pointer flex items-center gap-1.5 group">
-                  <span>{link}</span>
+            {DIRECTORY.map((link) => (
+              <li key={link.id}>
+                <button
+                  onClick={() => scrollTo(link.id)}
+                  className="hover:text-[#FF5A1F] transition-colors cursor-pointer flex items-center gap-1.5 group"
+                >
+                  <span>{link.label}</span>
                   <ArrowUpRight className="w-3 h-3 text-white/30 group-hover:text-[#FF5A1F] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-                </span>
+                </button>
               </li>
             ))}
           </ul>

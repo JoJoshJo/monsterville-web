@@ -45,7 +45,7 @@ export default function Home() {
             </div>
 
             {/* 02. Services */}
-            <div className="section-cv">
+            <div id="services" className="section-cv">
               <Services />
             </div>
 
@@ -55,7 +55,7 @@ export default function Home() {
             </div>
 
             {/* 04. Artists */}
-            <div className="section-cv">
+            <div id="artists" className="section-cv">
               <Artists />
             </div>
 
@@ -70,7 +70,7 @@ export default function Home() {
             </div>
 
             {/* 07. News */}
-            <div className="section-cv">
+            <div id="news" className="section-cv">
               <News />
             </div>
 
